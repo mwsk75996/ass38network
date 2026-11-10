@@ -23,7 +23,7 @@ Forberedelse: Wi-Fi er slået fra på PC1 og PC2, så trafikken går gennem SRX'
 | 4 | SRX-C2 lærer gatewayen over trunken | SRX-C2 | `show ethernet-switching table` | 28:8a:1c:47:ad:50 i OPERATIONS på ge-0/0/5.0 | Som forventet | Bestået |
 | 5 | PC2 når sin gateway gennem trunken | PC2 | `ping 192.168.20.1` | Svar | Svar | Bestået |
 | 6 | Routing OPERATIONS → SALES | PC2 | `ping 192.168.10.10` | Svar fra PC1 | Svar | Bestået |
-| 7 | SALES → OPERATIONS afvist | PC1 | `ping 192.168.20.5` | Ingen svar | Ingen svar | Bestået |
+| 7 | SALES → OPERATIONS afvist | PC1 | `ping 192.168.20.5` | Ingen svar | Ingen svar; samme policy som i Assignment 37 (se bemærkning) | Bestået |
 | 8 | Samme VLAN over trunken | PC2 flyttet til SRX-C2 ge-0/0/6, 192.168.10.11/24 | `ping 192.168.10.10` | Svar fra PC1 | Svar | Bestået |
 | 9 | Gateway i SALES gennem trunken | PC2 som i test 8 | `ping 192.168.10.1` | Svar | Svar | Bestået |
 | 10 | Trafik på trunk-port er tagged | PC3 på SRX-C1 ge-0/0/2 | Wireshark, filter `vlan` | Rammer med 802.1Q-header, ID 10 og ID 20 | 35 af 39 rammer tagged, ID 10 og ID 20 | Bestået |
@@ -141,6 +141,10 @@ SRX-C2, efter PC2 er flyttet til ge-0/0/6:
 ```
 
 PC1 og PC2 er nu i samme VLAN på hver sin SRX. SRX-C2 har lært PC1 på trunk-porten.
+
+### Bemærkning til test 7
+
+SALES → OPERATIONS bliver afvist af den samme policy, `deny_all_traffic`, som i [Assignment 37](https://github.com/mwsk75996/ass37network). `show security policies hit-count` på SRX-C1 efter alle tests viser `deny_all_traffic` med 1015 hits og `Allow_HTTP_and_ping` med 91 (se `srx-output.txt`). Tællerne er ikke nulstillet siden SRX-C1 bootede kl. 08:24 UTC, så de indeholder også trafik fra Assignment 37. De viser at tallet er steget fra 208 i Assignment 37, men ikke test 7 alene.
 
 ## Konklusion
 
