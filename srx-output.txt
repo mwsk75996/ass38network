@@ -1,0 +1,70 @@
+### SRX-C1 efter commit 2026-11-10
+commit and-quit 
+commit complete
+Exiting configuration mode
+
+root@SRX-C1> show ethernet-switching interfaces 
+Interface    State  VLAN members        Tag   Tagging  Blocking 
+ge-0/0/2.0   down   OPERATIONS          20    tagged   unblocked
+                    SALES               10    tagged   unblocked
+ge-0/0/3.0   down   OPERATIONS          20    untagged unblocked
+ge-0/0/4.0   down   OPERATIONS          20    untagged unblocked
+ge-0/0/5.0   up     OPERATIONS          20    tagged   unblocked
+                    SALES               10    tagged   unblocked
+ge-0/0/6.0   up     SALES               10    untagged unblocked
+ge-0/0/7.0   down   SALES               10    untagged unblocked
+
+root@SRX-C1> show ethernet-switching table 
+Ethernet-switching table: 6 entries, 2 learned, 0 persistent entries
+  VLAN	            MAC address       Type         Age Interfaces
+  OPERATIONS        *                 Flood          - All-members
+  OPERATIONS        28:8a:1c:47:ad:50 Static         - Router
+  OPERATIONS        34:5a:60:29:94:d8 Learn          0 ge-0/0/5.0
+  SALES             *                 Flood          - All-members
+  SALES             28:8a:1c:47:ad:50 Static         - Router
+  SALES             68:f7:28:be:46:85 Learn          0 ge-0/0/6.0
+
+root@SRX-C1> show interfaces terse vlan 
+Interface               Admin Link Proto    Local                 Remote
+vlan                    up    up  
+vlan.10                 up    up   inet     192.168.10.1/24 
+vlan.20                 up    up   inet     192.168.20.1/24 
+
+root@SRX-C1> 
+### SRX-C2 (SRX240H AG4809AA0482, Junos 12.1X46-D30.2)
+show ethernet-switching interfaces: ge-0/0/3 up untagged OPERATIONS, ge-0/0/5 up tagged OPERATIONS+SALES
+show ethernet-switching table:
+  OPERATIONS 28:8a:1c:47:ad:50 Learn ge-0/0/5.0
+  OPERATIONS 34:5a:60:29:94:d8 Learn ge-0/0/3.0
+
+### Test 4 (PC2 flyttet til SALES på SRX-C2 ge-0/0/6) - SRX-C1
+show ethernet-switching table 
+Ethernet-switching table: 7 entries, 3 learned, 0 persistent entries
+  VLAN	            MAC address       Type         Age Interfaces
+  OPERATIONS        *                 Flood          - All-members
+  OPERATIONS        28:8a:1c:47:ad:50 Static         - Router
+  OPERATIONS        34:5a:60:29:94:d8 Learn          0 ge-0/0/5.0
+  SALES             *                 Flood          - All-members
+  SALES             28:8a:1c:47:ad:50 Static         - Router
+  SALES             34:5a:60:29:94:d8 Learn          0 ge-0/0/5.0
+  SALES             68:f7:28:be:46:85 Learn          0 ge-0/0/6.0
+root@SRX-C1> 
+### SRX-C2
+show ethernet-switching table 
+Ethernet-switching table: 6 entries, 4 learned, 0 persistent entries
+  VLAN	            MAC address       Type         Age Interfaces
+  OPERATIONS        *                 Flood          - All-members
+  OPERATIONS        28:8a:1c:47:ad:50 Learn          0 ge-0/0/5.0
+  SALES             *                 Flood          - All-members
+  SALES             28:8a:1c:47:ad:50 Learn          0 ge-0/0/5.0
+  SALES             34:5a:60:29:94:d8 Learn          0 ge-0/0/6.0
+  SALES             68:f7:28:be:46:85 Learn          0 ge-0/0/5.0
+root@SRX-C2> show ethernet-switching interfaces 
+Interface    State  VLAN members        Tag   Tagging  Blocking 
+ge-0/0/3.0   down   OPERATIONS          20    untagged unblocked
+ge-0/0/4.0   down   OPERATIONS          20    untagged unblocked
+ge-0/0/5.0   up     OPERATIONS          20    tagged   unblocked
+                    SALES               10    tagged   unblocked
+ge-0/0/6.0   up     SALES               10    untagged unblocked
+ge-0/0/7.0   down   SALES               10    untagged unblocked
+root@SRX-C2> 

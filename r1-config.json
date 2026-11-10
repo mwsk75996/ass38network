@@ -1,0 +1,192 @@
+{
+  "system": {
+    "host-name": "SRX-C1",
+    "root-authentication": {
+      "encrypted-password": "$1$SR3ZnULH$cgcdTPXK7ModJJor1WKyE1"
+    },
+    "services": [
+      "ssh"
+    ]
+  },
+  "interfaces": {
+    "ge-0/0/5": {
+      "description": "TRUNK 802.1Q to SRX-C2 ge-0/0/5",
+      "unit": {
+        "0": {
+          "family": {
+            "ethernet-switching": {
+              "port-mode": "trunk",
+              "vlan": {
+                "members": [
+                  "SALES",
+                  "OPERATIONS"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "ge-0/0/2": {
+      "description": "TRUNK 802.1Q - Wireshark PC3",
+      "unit": {
+        "0": {
+          "family": {
+            "ethernet-switching": {
+              "port-mode": "trunk",
+              "vlan": {
+                "members": [
+                  "SALES",
+                  "OPERATIONS"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "ge-0/0/3": {
+      "description": "OPERATIONS - unused",
+      "unit": {
+        "0": {
+          "family": {
+            "ethernet-switching": {
+              "vlan": {
+                "members": "OPERATIONS"
+              }
+            }
+          }
+        }
+      }
+    },
+    "ge-0/0/4": {
+      "description": "OPERATIONS - unused",
+      "unit": {
+        "0": {
+          "family": {
+            "ethernet-switching": {
+              "vlan": {
+                "members": "OPERATIONS"
+              }
+            }
+          }
+        }
+      }
+    },
+    "ge-0/0/6": {
+      "description": "SALES - PC1",
+      "unit": {
+        "0": {
+          "family": {
+            "ethernet-switching": {
+              "vlan": {
+                "members": "SALES"
+              }
+            }
+          }
+        }
+      }
+    },
+    "ge-0/0/7": {
+      "description": "SALES - Wireshark PC3 (test 11)",
+      "unit": {
+        "0": {
+          "family": {
+            "ethernet-switching": {
+              "vlan": {
+                "members": "SALES"
+              }
+            }
+          }
+        }
+      }
+    },
+    "vlan": {
+      "unit": {
+        "10": {
+          "description": "SALES gateway",
+          "family": {
+            "inet": {
+              "address": "192.168.10.1/24"
+            }
+          }
+        },
+        "20": {
+          "description": "OPERATIONS gateway",
+          "family": {
+            "inet": {
+              "address": "192.168.20.1/24"
+            }
+          }
+        }
+      }
+    }
+  },
+  "security": {
+    "policies": {
+      "from-zone OPERATIONS to-zone SALES": {
+        "policy": {
+          "Allow_HTTP_and_ping": {
+            "match": {
+              "source-address": "any",
+              "destination-address": "any",
+              "application": [
+                "junos-http",
+                "junos-icmp-ping"
+              ]
+            },
+            "then": "permit"
+          }
+        }
+      },
+      "from-zone SALES to-zone OPERATIONS": {
+        "policy": {
+          "deny_all_traffic": {
+            "match": {
+              "source-address": "any",
+              "destination-address": "any",
+              "application": "any"
+            },
+            "then": "deny"
+          }
+        }
+      }
+    },
+    "zones": {
+      "security-zone": {
+        "SALES": {
+          "interfaces": {
+            "vlan.10": {
+              "host-inbound-traffic": {
+                "system-services": [
+                  "ping"
+                ]
+              }
+            }
+          }
+        },
+        "OPERATIONS": {
+          "interfaces": {
+            "vlan.20": {
+              "host-inbound-traffic": {
+                "system-services": [
+                  "ping"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "vlans": {
+    "OPERATIONS": {
+      "vlan-id": 20,
+      "l3-interface": "vlan.20"
+    },
+    "SALES": {
+      "vlan-id": 10,
+      "l3-interface": "vlan.10"
+    }
+  }
+}
